@@ -33,22 +33,22 @@ function App() {
     if (item) {
       setEditingItem(item);
       setForm({
-        ItemName: item.ItemName,
-        Category: item.Category,
-        Quantity: item.Quantity,
-        Unit: item.Unit,
-        Status: item.Status,
-        DateAdded: item.DateAdded ? item.DateAdded.split("T")[0] : "",
+        itemName: item.itemName,
+        category: item.category,
+        quantity: item.quantity,
+        unit: item.unit,
+        status: item.status,
+        dateAdded: item.dateAdded ? item.dateAdded.split("T")[0] : "",
       });
     } else {
       setEditingItem(null);
       setForm({
-        ItemName: "",
-        Category: "",
-        Quantity: "",
-        Unit: "",
-        DateAdded: "",
-        Status: "",
+        itemName: "",
+        category: "",
+        quantity: "",
+        unit: "",
+        dateAdded: "",
+        status: "",
       });
     }
     setIsModalOpen(true);
@@ -103,11 +103,11 @@ function App() {
           {items.length > 0 ? (
             items.map((item) => (
               <tr key={item.id}>
-                <td className="border p-2">{item.ItemName}</td>
-                <td className="border p-2">{item.Category}</td>
-                <td className="border p-2">{item.Quantity}</td>
-                <td className="border p-2">{item.Unit}</td>
-                <td className="border p-2">{item.Status}</td>
+                <td className="border p-2">{item.itemName}</td>
+                <td className="border p-2">{item.category}</td>
+                <td className="border p-2">{item.quantity}</td>
+                <td className="border p-2">{item.unit}</td>
+                <td className="border p-2">{item.status}</td>
                 <td className="border p-2">
                   {item.DateAdded
                     ? new Date(item.DateAdded).toLocaleDateString()
