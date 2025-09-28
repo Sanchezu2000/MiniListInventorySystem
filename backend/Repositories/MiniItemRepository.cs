@@ -15,20 +15,21 @@ namespace BACKEND.Repositories
 
         public async Task<IEnumerable<MiniItem>> GetAllAsync()
         {
-            return await _context.MiniItems.ToListAsync();
+            return await (from item in _context.MiniItems
+                          select item).ToListAsync();
         }
-
         public async Task<MiniItem?> GetByIdAsync(int id)
         {
-            return await _context.MiniItems.FindAsync(id);
-        }
+            return await (from item in _context.MiniItems
+                          where item.Id == id
+                          select item).FirstOrDefaultAsync();
 
+        }
         public async Task AddAsync(MiniItem item)
         {
-            _context.MiniItems.Add(item);
+          _context.MiniItems.Add(item);
             await _context.SaveChangesAsync();
         }
-
         public async Task UpdateAsync(MiniItem item)
         {
             _context.MiniItems.Update(item);
@@ -36,17 +37,22 @@ namespace BACKEND.Repositories
         }
         public async Task MarkAsBoughtAsync(int id)
         {
-            var item = await _context.MiniItems.FindAsync(id);
+            var item = await (from i in _context.MiniItems
+                              where i.Id == id
+                              select i).FirstOrDefaultAsync();
+
             if (item != null)
             {
-                item.Status = "Bought";  // or item.IsBought = true;
+                item.Status = "Bought"; // or item.IsBought = true;
                 await _context.SaveChangesAsync();
             }
         }
-
         public async Task DeleteAsync(int id)
         {
-            var item = await _context.MiniItems.FindAsync(id);
+            var item = await (from i in _context.MiniItems
+                              where i.Id == id
+                              select i).FirstOrDefaultAsync();
+
             if (item != null)
             {
                 _context.MiniItems.Remove(item);
