@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 import { api } from "./api";
 import { Dialog } from "@headlessui/react";
-import { Eye, Edit, Trash2, PlusCircle, X, Save, CheckCircle } from "lucide-react";
+import {
+  Eye,
+  Edit,
+  Trash2,
+  PlusCircle,
+  X,
+  Save,
+  CheckCircle,
+} from "lucide-react";
 
 function App() {
   const [items, setItems] = useState([]);
@@ -150,8 +158,12 @@ function App() {
     return acc;
   }, {});
 
-  const totalItems = items.length;
-
+  const totalItems = items.reduce((sum, item) => {
+    if (item.status === "Available") {
+      return sum + (parseInt(item.quantity, 10) || 0);
+    }
+    return sum;
+  }, 0);
   // ---------- Table ----------
   function renderTable() {
     return (
@@ -234,6 +246,21 @@ function App() {
       </div>
     );
   }
+  function ItemCard({ item }) {
+    return (
+      <div className="p-4 border rounded shadow">
+        <h3>{item.ItemName}</h3>
+        <p>{item.Category}</p>
+        {item.ImageUrl && (
+          <img
+            src={`https://localhost:5001${item.ImageUrl}`}
+            alt={item.ItemName}
+            className="w-32 h-32 object-cover mt-2"
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
@@ -241,29 +268,29 @@ function App() {
         {/* Title */}
         <div className="flex justify-center mb-8">
           <h1 className="text-3xl font-extrabold text-gray-700 tracking-wide border-b pb-3">
-             Mini List Inventory
+            Item Management System
           </h1>
         </div>
 
-                {/* Totals per fixed category */}
-                <div className="mb-6">
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          {fixedCategories.map((cat) => (
-            <div
-              key={cat}
-              className="bg-sky-50 border border-gray-200 rounded-lg shadow-sm p-3 flex flex-col items-center text-center hover:shadow-md transition"
-            >
-              <div className="text-xs text-white-500">{cat}</div>
-              <div className="text-lg font-bold text-gray-800 mt-1">
-                {categoryCounts[cat]}
+        {/* Totals per fixed category */}
+        <div className="mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {fixedCategories.map((cat) => (
+              <div
+                key={cat}
+                className="bg-sky-50 border border-gray-200 rounded-lg shadow-sm p-3 flex flex-col items-center text-center hover:shadow-md transition"
+              >
+                <div className="text-xs text-white-500">{cat}</div>
+                <div className="text-lg font-bold text-gray-800 mt-1">
+                  {categoryCounts[cat]}
+                </div>
               </div>
+            ))}
+            <div className="bg-cyan-600 border border-gray-500 rounded-lg shadow p-3 flex flex-col items-center text-center text-white">
+              <div className="text-xs font-medium">Total Items</div>
+              <div className="text-lg font-bold mt-1">{totalItems}</div>
             </div>
-          ))}
-          <div className="bg-cyan-600 border border-gray-500 rounded-lg shadow p-3 flex flex-col items-center text-center text-white">
-            <div className="text-xs font-medium">Total Items</div>
-            <div className="text-lg font-bold mt-1">{totalItems}</div>
           </div>
-        </div>
         </div>
 
         {/* Add button */}
@@ -278,199 +305,244 @@ function App() {
 
         {renderTable()}
       </div>
+      {/* ---------- Add/Edit Modal ---------- */}
+      <Dialog open={isModalOpen} onClose={closeModal} className="relative z-50">
+        <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="bg-white p-6 rounded-2xl shadow-lg max-w-lg w-full border border-gray-200">
+            <div className="flex justify-between items-center mb-4 border-b pb-2">
+              <Dialog.Title className="text-xl font-semibold text-gray-800">
+                {editingItem ? "Edit Item" : "Add Item"}
+              </Dialog.Title>
+              <button
+                onClick={closeModal}
+                className="text-gray-400 hover:text-gray-600 transition"
+              >
+                <X size={20} />
+              </button>
+            </div>
 
-     {/* ---------- Add/Edit Modal ---------- */}
-<Dialog open={isModalOpen} onClose={closeModal} className="relative z-50">
-  <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
-  <div className="fixed inset-0 flex items-center justify-center p-4">
-    <Dialog.Panel className="bg-white p-6 rounded-2xl shadow-lg max-w-md w-full border border-gray-200">
-      <div className="flex justify-between items-center mb-4 border-b pb-2">
-        <Dialog.Title className="text-xl font-semibold text-gray-800">
-          {editingItem ? "Edit Item" : "Add Item"}
-        </Dialog.Title>
-        <button
-          onClick={closeModal}
-          className="text-gray-400 hover:text-gray-600 transition"
-        >
-          <X size={20} />
-        </button>
-      </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Item Name full width */}
+              <input
+                type="text"
+                placeholder="Item Name"
+                value={form.itemName}
+                onChange={(e) => setForm({ ...form, itemName: e.target.value })}
+                className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+                required
+              />
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          placeholder="Item Name"
-          value={form.itemName}
-          onChange={(e) => setForm({ ...form, itemName: e.target.value })}
-          className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
-          required
-        />
+              {/* Grid for Category + Quantity */}
+              <div className="grid grid-cols-2 gap-4">
+                <select
+                  value={form.category}
+                  onChange={(e) =>
+                    setForm({ ...form, category: e.target.value })
+                  }
+                  className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+                  required
+                >
+                  <option value="">Category</option>
+                  {fixedCategories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
 
-        <select
-          value={form.category}
-          onChange={(e) => setForm({ ...form, category: e.target.value })}
-          className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
-          required
-        >
-          <option value="">Select Category</option>
-          {fixedCategories.map((cat) => (
-            <option key={cat} value={cat}>{cat}</option>
-          ))}
-        </select>
+                <input
+                  type="number"
+                  placeholder="Quantity"
+                  value={form.quantity}
+                  onChange={(e) =>
+                    setForm({ ...form, quantity: e.target.value })
+                  }
+                  className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+                  required
+                />
+              </div>
 
-        <input
-          type="number"
-          placeholder="Quantity"
-          value={form.quantity}
-          onChange={(e) => setForm({ ...form, quantity: e.target.value })}
-          className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
-          required
-        />
+              {/* Grid for Unit + Status */}
+              <div className="grid grid-cols-2 gap-4">
+                <select
+                  value={form.unit}
+                  onChange={(e) => setForm({ ...form, unit: e.target.value })}
+                  className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+                  required
+                >
+                  <option value="">Unit</option>
+                  {fixedUnits.map((unit) => (
+                    <option key={unit} value={unit}>
+                      {unit}
+                    </option>
+                  ))}
+                </select>
 
-        <select
-          value={form.unit}
-          onChange={(e) => setForm({ ...form, unit: e.target.value })}
-          className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
-          required
-        >
-          <option value="">Select Unit</option>
-          {fixedUnits.map((unit) => (
-            <option key={unit} value={unit}>{unit}</option>
-          ))}
-        </select>
+                <select
+                  value={form.status}
+                  onChange={(e) => setForm({ ...form, status: e.target.value })}
+                  className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+                  required
+                >
+                  <option value="">Status</option>
+                  <option value="Available">Available</option>
+                  <option value="Out of Stock">Out of Stock</option>
+                </select>
+              </div>
 
-        <select
-          value={form.status}
-          onChange={(e) => setForm({ ...form, status: e.target.value })}
-          className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
-          required
-        >
-          <option value="">Select Status</option>
-          <option value="Available">Available</option>
-          <option value="Out of Stock">Out of Stock</option>
-        </select>
+              {editingItem && (
+                <input
+                  type="date"
+                  value={form.dateAdded}
+                  onChange={(e) =>
+                    setForm({ ...form, dateAdded: e.target.value })
+                  }
+                  className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+                />
+              )}
 
-        {editingItem && (
-          <input
-            type="date"
-            value={form.dateAdded}
-            onChange={(e) => setForm({ ...form, dateAdded: e.target.value })}
-            className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
-          />
-        )}
-
-        <div className="flex justify-end gap-2 pt-4 border-t">
-          <button
-            type="button"
-            onClick={closeModal}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            <Save size={18} /> Save
-          </button>
+              {/* Footer */}
+              <div className="flex justify-end gap-2 pt-4 border-t">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  <Save size={18} /> Save
+                </button>
+              </div>
+            </form>
+          </Dialog.Panel>
         </div>
-      </form>
-    </Dialog.Panel>
-  </div>
-</Dialog>
+      </Dialog>
 
-{/* ---------- View Modal ---------- */}
-<Dialog open={!!viewingItem} onClose={closeViewModal} className="relative z-50">
-  <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
-  <div className="fixed inset-0 flex items-center justify-center p-4">
-    <Dialog.Panel className="bg-white p-6 rounded-2xl shadow-lg max-w-md w-full border border-gray-200">
-      <div className="flex justify-between items-center mb-4 border-b pb-2">
-        <Dialog.Title className="text-xl font-semibold text-gray-800">
-          Item Details
-        </Dialog.Title>
-        <button
-          onClick={closeViewModal}
-          className="text-gray-400 hover:text-gray-600 transition"
-        >
-          <X size={20} />
-        </button>
-      </div>
+      {/* ---------- View Modal ---------- */}
+      <Dialog
+        open={!!viewingItem}
+        onClose={closeViewModal}
+        className="relative z-50"
+      >
+        <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="bg-white p-6 rounded-2xl shadow-lg max-w-md w-full border border-gray-200">
+            <div className="flex justify-between items-center mb-4 border-b pb-2">
+              <Dialog.Title className="text-xl font-semibold text-gray-800">
+                Item Details
+              </Dialog.Title>
+              <button
+                onClick={closeViewModal}
+                className="text-gray-400 hover:text-gray-600 transition"
+              >
+                <X size={20} />
+              </button>
+            </div>
 
-      {viewingItem && (
-        <div className="space-y-2 text-gray-700 text-sm">
-          <p><strong>Item Name:</strong> {viewingItem.itemName}</p>
-          <p><strong>Category:</strong> {viewingItem.category}</p>
-          <p><strong>Quantity:</strong> {viewingItem.quantity}</p>
-          <p><strong>Unit:</strong> {viewingItem.unit}</p>
-          <p><strong>Status:</strong> {viewingItem.status}</p>
-          <p>
-            <strong>Date Added:</strong>{" "}
-            {viewingItem.dateAdded ? new Intl.DateTimeFormat("en-GB").format(new Date(viewingItem.dateAdded)) : ""}
-          </p>
+            {viewingItem && (
+              <div className="space-y-2 text-gray-700 text-sm">
+                <p>
+                  <strong>Item Name:</strong> {viewingItem.itemName}
+                </p>
+                <p>
+                  <strong>Category:</strong> {viewingItem.category}
+                </p>
+                <p>
+                  <strong>Quantity:</strong> {viewingItem.quantity}
+                </p>
+                <p>
+                  <strong>Unit:</strong> {viewingItem.unit}
+                </p>
+                <p>
+                  <strong>Status:</strong> {viewingItem.status}
+                </p>
+                <p>
+                  <strong>Date Added:</strong>{" "}
+                  {viewingItem.dateAdded
+                    ? new Intl.DateTimeFormat("en-GB").format(
+                        new Date(viewingItem.dateAdded)
+                      )
+                    : ""}
+                </p>
+              </div>
+            )}
+
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={closeViewModal}
+                className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Close
+              </button>
+            </div>
+          </Dialog.Panel>
         </div>
-      )}
+      </Dialog>
 
-      <div className="mt-4 flex justify-end">
-        <button
-          onClick={closeViewModal}
-          className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          Close
-        </button>
-      </div>
-    </Dialog.Panel>
-  </div>
-</Dialog>
+      {/* ---------- Delete Confirmation Modal ---------- */}
+      <Dialog
+        open={isDeleteOpen}
+        onClose={closeDeleteModal}
+        className="relative z-50"
+      >
+        <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="bg-white p-6 rounded-2xl shadow-lg max-w-sm w-full border border-gray-200 text-center">
+            <Dialog.Title className="text-xl font-semibold text-gray-800 mb-4">
+              Confirm Delete
+            </Dialog.Title>
+            <p className="text-gray-600 mb-6 text-sm">
+              Are you sure you want to delete{" "}
+              <span className="font-semibold">
+                {deleteTarget?.itemName || "this item"}
+              </span>
+              ?
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={closeDeleteModal}
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
 
-{/* ---------- Delete Confirmation Modal ---------- */}
-<Dialog open={isDeleteOpen} onClose={closeDeleteModal} className="relative z-50">
-  <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
-  <div className="fixed inset-0 flex items-center justify-center p-4">
-    <Dialog.Panel className="bg-white p-6 rounded-2xl shadow-lg max-w-sm w-full border border-gray-200 text-center">
-      <Dialog.Title className="text-xl font-semibold text-gray-800 mb-4">
-        Confirm Delete
-      </Dialog.Title>
-      <p className="text-gray-600 mb-6 text-sm">
-        Are you sure you want to delete{" "}
-        <span className="font-semibold">{deleteTarget?.itemName || "this item"}</span>?
-      </p>
-      <div className="flex justify-center gap-4">
-        <button
-          onClick={closeDeleteModal}
-          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={handleDelete}
-          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-        >
-          Delete
-        </button>
-      </div>
-    </Dialog.Panel>
-  </div>
-</Dialog>
-
-{/* ---------- Success Modal ---------- */}
-<Dialog open={isSuccessOpen} onClose={() => setIsSuccessOpen(false)} className="relative z-50">
-  <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
-  <div className="fixed inset-0 flex items-center justify-center p-4">
-    <Dialog.Panel className="bg-white p-6 rounded-2xl shadow-lg max-w-sm w-full border border-gray-200 text-center">
-      <div className="flex flex-col items-center">
-        <CheckCircle className="text-green-500 mb-3" size={40} />
-        <p className="text-gray-700 mb-6 text-sm">{successMessage}</p>
-        <button
-          onClick={() => setIsSuccessOpen(false)}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          OK
-        </button>
-      </div>
-    </Dialog.Panel>
-  </div>
-</Dialog>
-
+      {/* ---------- Success Modal ---------- */}
+      <Dialog
+        open={isSuccessOpen}
+        onClose={() => setIsSuccessOpen(false)}
+        className="relative z-50"
+      >
+        <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="bg-white p-6 rounded-2xl shadow-lg max-w-sm w-full border border-gray-200 text-center">
+            <div className="flex flex-col items-center">
+              <CheckCircle className="text-green-500 mb-3" size={40} />
+              <p className="text-gray-700 mb-6 text-sm">{successMessage}</p>
+              <button
+                onClick={() => setIsSuccessOpen(false)}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                OK
+              </button>
+            </div>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
     </div>
   );
 }
