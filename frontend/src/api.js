@@ -1,10 +1,15 @@
 // src/api.js
-const BASE_URL = "http://localhost:5143"
-//import.meta.env.VITE_API_URL;
+const BASE_URL = "http://localhost:5143"; // ✅ adjust if backend port changes
 
 async function http(path, options = {}) {
+  const token = localStorage.getItem("token");
+
   const res = await fetch(`${BASE_URL}${path}`, {
-    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}), // ✅ attach JWT if available
+      ...(options.headers || {}),
+    },
     ...options,
   });
 
@@ -44,5 +49,32 @@ export const api = {
     return await http(`/api/Mini/${id}`, {
       method: "DELETE",
     });
+  },
+
+ login: async (userName, password) => {
+    const data = await http("/api/Auth/login", {
+      method: "POST",
+      body: JSON.stringify({
+        UserName: userName, // matches backend property
+        Password: password, // matches backend property
+      }),
+    });
+
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data));
+    }
+
+    return data;
+  },
+
+
+  logout: () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+  },
+
+  getCurrentUser: () => {
+    return JSON.parse(localStorage.getItem("user"));
   },
 };
