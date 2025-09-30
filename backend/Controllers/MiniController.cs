@@ -23,7 +23,7 @@ namespace BACKEND.Controllers
             return Ok(items);
         }
 
-        // GET: api/mini/{id}
+        // GET: api/mini/{id} 
         [HttpGet("{id}")]
         public async Task<ActionResult<MiniItem>> GetById(int id)
         {

@@ -8,5 +8,6 @@ namespace BACKEND.Data   // ✅ Important: This must match your namespace
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<MiniItem> MiniItems { get; set; }
+        public DbSet<User>Users{ get; set; }
     }
 }
