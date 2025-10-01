@@ -17,7 +17,7 @@ namespace BACKEND.Controllers
             _userRepository = userRepository;
         }
 
-        // ✅ Register new user with hashed password
+        //  Register new user with hashed password
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] User user)
         {
@@ -45,7 +45,7 @@ namespace BACKEND.Controllers
             });
         }
 
-        // ✅ Get all users
+        // Get all users
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -53,7 +53,7 @@ namespace BACKEND.Controllers
             return Ok(users);
         }
 
-        // ✅ Get user by ID
+        //  Get user by ID
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -63,7 +63,7 @@ namespace BACKEND.Controllers
             return Ok(user);
         }
 
-        // ✅ Update user (rehash password if changed)
+        //  Update user (rehash password if changed)
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] User user)
         {
@@ -84,7 +84,7 @@ namespace BACKEND.Controllers
             return Ok(updated);
         }
 
-        // ✅ Delete user
+        // Delete user
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

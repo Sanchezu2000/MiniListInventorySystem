@@ -21,9 +21,50 @@ namespace BACKEND.Controllers
             _userRepository = userRepository;
             _configuration = configuration;
         }
+        [HttpPost("register")]
+public async Task<IActionResult> Register([FromBody] RegisterDto dto)
+{
+    
+    // Check if username already exists
+            var existingUser = await _userRepository.GetByUsernameAsync(dto.UserName);
+    if (existingUser != null)
+    {
+        return BadRequest("Username already exists");
+    }
+
+    // Hash the password
+    string passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+
+       
+    var newUser = new User
+    {
+        UserName = dto.UserName,
+        Email = dto.email,
+        PasswordHash = passwordHash
+    };
+
+    await _userRepository.CreateAsync(newUser);
+
+    return Ok(new
+    {
+        message = "Registration successful",
+        newUser.Id,
+        newUser.UserName,
+        newUser.Email
+    });
+}
+
+// DTO for registration
+public class RegisterDto
+{
+    public string UserName { get; set; } = string.Empty;
+    public string email { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
+}
+
 
         // POST: api/auth/login
-      [HttpPost("login")]
+        [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
             var user = await _userRepository.GetByUsernameAsync(dto.UserName);

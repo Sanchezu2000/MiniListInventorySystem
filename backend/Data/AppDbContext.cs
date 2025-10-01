@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using BACKEND.Models;
 
-namespace BACKEND.Data   // ✅ Important: This must match your namespace
+namespace BACKEND.Data   // Important: This must match your namespace
 {
     public class AppDbContext : DbContext
     {
