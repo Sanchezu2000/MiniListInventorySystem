@@ -51,7 +51,8 @@ export const api = {
     });
   },
 
- login: async (userName, password) => {
+  // 🔑 Auth
+  login: async (userName, password) => {
     const data = await http("/api/Auth/login", {
       method: "POST",
       body: JSON.stringify({
@@ -68,6 +69,19 @@ export const api = {
     return data;
   },
 
+  register: async ({ UserName,email, Password }) => {
+    const data = await http("/api/User/register", {
+      method: "POST",
+      body: JSON.stringify({
+               // must match backend DTO
+        UserName: UserName,
+        Email :email,
+        PasswordHash: Password,
+      }),
+    });
+
+    return data; // may return user object or success message
+  },
 
   logout: () => {
     localStorage.removeItem("token");

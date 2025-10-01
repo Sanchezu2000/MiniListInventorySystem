@@ -11,7 +11,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 
-function App() {
+function HomePage() {
   const [items, setItems] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -20,6 +20,20 @@ function App() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [UserName, setUserName] = useState("");
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      try {
+        const parsedUser = JSON.parse(savedUser);
+        console.log("Parsed user:", parsedUser); // check what backend sends
+        setUserName(parsedUser.userName);
+      } catch (err) {
+        console.error("Error parsing user from localStorage", err);
+      }
+    }
+  }, []);
 
   // Fixed categories
   const fixedCategories = [
@@ -151,7 +165,11 @@ function App() {
       console.error("Error deleting item:", err);
     }
   }
-
+  const handleLogout = () => {
+    localStorage.removeItem("user"); // clear saved user
+    localStorage.removeItem("token"); // clear token if you stored it
+    window.location.href = "/login"; // redirect to login page
+  };
   // ---------- Counts ----------
   const categoryCounts = fixedCategories.reduce((acc, cat) => {
     acc[cat] = items.filter((item) => item.category === cat).length;
@@ -164,6 +182,7 @@ function App() {
     }
     return sum;
   }, 0);
+
   // ---------- Table ----------
   function renderTable() {
     return (
@@ -263,8 +282,17 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-5xl mx-auto bg-white p-6 shadow rounded-lg">
+    <div className="min-h-screen bg-gray-100">
+      <div className="flex justify-between items-center bg-sky-700 py-2  px-4 text-white">
+        <h1 className="text-lg font-bold">Welcome {UserName}</h1>
+        <button
+          onClick={handleLogout}
+          className="bg-sky-500 px-4 py-2 rounded hover:bg-gray-600"
+        >
+          Logout
+        </button>
+      </div>
+      <div className="max-w-5xl mx-auto bg-white p-6 shadow rounded-lg mt-6">
         {/* Title */}
         <div className="flex justify-center mb-8">
           <h1 className="text-3xl font-extrabold text-gray-700 tracking-wide border-b pb-3">
@@ -547,4 +575,4 @@ function App() {
   );
 }
 
-export default App;
+export default HomePage;
