@@ -40,6 +40,9 @@ function RegisterPage({ onRegister }) {
     return newErrors;
   };
 
+  console.log(UserName);
+  console.log(email);
+  console.log(Password);
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
@@ -73,7 +76,8 @@ function RegisterPage({ onRegister }) {
         <h2 className="text-xl font-bold mb-4">Register</h2>
 
         {errors.form && <p className="text-red-500 mb-3">{errors.form}</p>}
-        {success && <p className="text-green-500 mb-3">{success}</p>}
+       {success && <p className="text-green-500 mb-3">{success}</p>}
+
 
         <form onSubmit={handleSubmit} noValidate>
           {/* Username */}
@@ -130,6 +134,7 @@ function RegisterPage({ onRegister }) {
           >
             Register
           </button>
+          
         </form>
       </div>
     </div>

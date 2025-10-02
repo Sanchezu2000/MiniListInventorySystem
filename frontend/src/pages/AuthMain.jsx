@@ -1,6 +1,6 @@
 // src/App.jsx
 import { useState } from "react";
-import RegisterPage from "./Registration";
+import RegisterPage from "../components/Registration";
 import LoginPage from "./Login";
 import HomePage from "./Home";
 

@@ -22,20 +22,27 @@ function HomePage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [UserName, setUserName] = useState("");
 
+  // ✅ Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
-    if (savedUser) {
+    if (savedUser && savedUser !== "undefined") {
       try {
         const parsedUser = JSON.parse(savedUser);
-        console.log("Parsed user:", parsedUser); // check what backend sends
-        setUserName(parsedUser.userName);
+        setUserName(
+          parsedUser.userName ||
+            parsedUser.UserName ||
+            parsedUser.name ||
+            "User"
+        );
       } catch (err) {
         console.error("Error parsing user from localStorage", err);
       }
     }
   }, []);
 
-  // Fixed categories
   const fixedCategories = [
     "Office Supplies",
     "Cleaning Supplies",
@@ -45,7 +52,6 @@ function HomePage() {
 
   const fixedUnits = ["Pcs", "Box", "Packs", "Liters", "Ream", "Pad", "Can"];
 
-  // Form state
   const [form, setForm] = useState({
     itemName: "",
     category: "",
@@ -55,7 +61,6 @@ function HomePage() {
     dateAdded: "",
   });
 
-  // Fetch items on mount
   useEffect(() => {
     loadItems();
   }, []);
@@ -69,7 +74,6 @@ function HomePage() {
     }
   }
 
-  // ---------- CRUD ----------
   function openModal(item = null) {
     if (item) {
       setEditingItem(item);
@@ -165,12 +169,13 @@ function HomePage() {
       console.error("Error deleting item:", err);
     }
   }
+
   const handleLogout = () => {
-    localStorage.removeItem("user"); // clear saved user
-    localStorage.removeItem("token"); // clear token if you stored it
-    window.location.href = "/login"; // redirect to login page
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    window.location.href = "/login";
   };
-  // ---------- Counts ----------
+
   const categoryCounts = fixedCategories.reduce((acc, cat) => {
     acc[cat] = items.filter((item) => item.category === cat).length;
     return acc;
@@ -183,7 +188,12 @@ function HomePage() {
     return sum;
   }, 0);
 
-  // ---------- Table ----------
+  // ✅ Pagination logic
+  const totalPages = Math.ceil(items.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
+
   function renderTable() {
     return (
       <div className="overflow-hidden rounded-lg shadow border border-gray-200">
@@ -200,8 +210,8 @@ function HomePage() {
             </tr>
           </thead>
           <tbody>
-            {items.length > 0 ? (
-              items.map((item, idx) => (
+            {currentItems.length > 0 ? (
+              currentItems.map((item, idx) => (
                 <tr
                   key={item.id}
                   className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
@@ -262,20 +272,38 @@ function HomePage() {
             )}
           </tbody>
         </table>
-      </div>
-    );
-  }
-  function ItemCard({ item }) {
-    return (
-      <div className="p-4 border rounded shadow">
-        <h3>{item.ItemName}</h3>
-        <p>{item.Category}</p>
-        {item.ImageUrl && (
-          <img
-            src={`https://localhost:5001${item.ImageUrl}`}
-            alt={item.ItemName}
-            className="w-32 h-32 object-cover mt-2"
-          />
+
+        {/* ✅ Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-2 p-4">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => prev - 1)}
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+            >
+              Prev
+            </button>
+            {[...Array(totalPages)].map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentPage(index + 1)}
+                className={`px-3 py-1 rounded ${
+                  currentPage === index + 1
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200"
+                }`}
+              >
+                {index + 1}
+              </button>
+            ))}
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((prev) => prev + 1)}
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
         )}
       </div>
     );
@@ -283,7 +311,8 @@ function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <div className="flex justify-between items-center bg-sky-700 py-2  px-4 text-white">
+      {/* Header */}
+      <div className="flex justify-between items-center bg-sky-700 py-2 px-4 text-white">
         <h1 className="text-lg font-bold">Welcome {UserName}</h1>
         <button
           onClick={handleLogout}
@@ -292,6 +321,7 @@ function HomePage() {
           Logout
         </button>
       </div>
+
       <div className="max-w-5xl mx-auto bg-white p-6 shadow rounded-lg mt-6">
         {/* Title */}
         <div className="flex justify-center mb-8">
@@ -330,7 +360,6 @@ function HomePage() {
             <PlusCircle size={18} /> Add Item
           </button>
         </div>
-
         {renderTable()}
       </div>
       {/* ---------- Add/Edit Modal ---------- */}

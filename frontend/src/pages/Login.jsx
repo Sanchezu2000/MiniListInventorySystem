@@ -1,6 +1,6 @@
 // frontend/src/pages/LoginPage.jsx
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; 
+import { Link, useNavigate } from "react-router-dom";
 import { api } from "../api";
 
 function LoginPage({ onLogin }) {
@@ -31,17 +31,33 @@ function LoginPage({ onLogin }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    if (!validate()) return; // stop if validation fails
+
+    if (!validate()) return; // ✅ stop if validation fails
 
     try {
-      const user = await api.login(userName, password); 
-      console.log(user);
-      onLogin(user);
-      navigate("/Home");
+      const response = await api.login(userName, password);
+      // response = { token, id, userName }
+
+      // Save token and user properly
+      localStorage.setItem("token", response.token);
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          id: response.id,
+          userName: response.userName,
+        })
+      );
+
+      // Call onLogin with the user object
+      onLogin({
+        id: response.id,
+        userName: response.userName,
+      });
+
+      navigate("/home");
     } catch (err) {
-      setError("Invalid username or password");
       console.error(err);
+      setError("Invalid username or password");
     }
   };
 
