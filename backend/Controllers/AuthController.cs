@@ -22,45 +22,45 @@ namespace BACKEND.Controllers
             _configuration = configuration;
         }
         [HttpPost("register")]
-public async Task<IActionResult> Register([FromBody] RegisterDto dto)
-{
-    
-    // Check if username already exists
+        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
+        {
+
+            // Check if username already exists
             var existingUser = await _userRepository.GetByUsernameAsync(dto.UserName);
-    if (existingUser != null)
-    {
-        return BadRequest("Username already exists");
-    }
+            if (existingUser != null)
+            {
+                return BadRequest("Username already exists");
+            }
 
-    // Hash the password
-    string passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+            // Hash the password
+            string passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
-       
-    var newUser = new User
-    {
-        UserName = dto.UserName,
-        Email = dto.email,
-        PasswordHash = passwordHash
-    };
 
-    await _userRepository.CreateAsync(newUser);
+            var newUser = new User
+            {
+                UserName = dto.UserName,
+                Email = dto.email,
+                PasswordHash = passwordHash
+            };
 
-    return Ok(new
-    {
-        message = "Registration successful",
-        newUser.Id,
-        newUser.UserName,
-        newUser.Email
-    });
-}
+            await _userRepository.CreateAsync(newUser);
 
-// DTO for registration
-public class RegisterDto
-{
-    public string UserName { get; set; } = string.Empty;
-    public string email { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
-}
+            return Ok(new
+            {
+                message = "Registration successful",
+                newUser.Id,
+                newUser.UserName,
+                newUser.Email
+            });
+        }
+
+        // DTO for registration
+        public class RegisterDto
+        {
+            public string UserName { get; set; } = string.Empty;
+            public string email { get; set; } = string.Empty;
+            public string Password { get; set; } = string.Empty;
+        }
 
 
         // POST: api/auth/login
@@ -84,31 +84,34 @@ public class RegisterDto
         }
         private string GenerateJwtToken(User user)
         {
+            var tokenHandler = new JwtSecurityTokenHandler();
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim("UserId", user.Id.ToString())
+                };
 
-            var claims = new[]
+            var tokenDescriptor = new SecurityTokenDescriptor
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-                new Claim("id", user.Id.ToString()),
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddHours(1),
+                SigningCredentials = new SigningCredentials(
+                    key,
+                    SecurityAlgorithms.HmacSha256
+                )
             };
 
-            var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.UtcNow.AddHours(2),
-                signingCredentials: creds
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
-    }
 
-    // DTO for login request
-    public class LoginDto
-    {
-        public string UserName { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
+
+        // DTO for login request
+        public class LoginDto
+        {
+            public string UserName { get; set; } = string.Empty;
+            public string Password { get; set; } = string.Empty;
+        }
     }
 }

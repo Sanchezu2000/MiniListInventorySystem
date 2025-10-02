@@ -16,6 +16,7 @@ namespace BACKEND.Controllers
         }
 
         // GET: api/mini
+        
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MiniItem>>> GetAll()
         {
