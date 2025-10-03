@@ -2,6 +2,7 @@
 
 A simple Inventory Management System built with ASP.NET Core Web API, React (Vite), and SQL Server.
 
+
 🚀 Features
 
 User registration & login (JWT authentication)
@@ -12,6 +13,7 @@ Categories: Office Supplies, Stationery & Labels, Consumables, Cleaning Supplies
 
 Item fields: ItemName, Category, Quantity, Unit, Status, DateAdded
 
+
 🛠️ Tech Stack
 
 Frontend: React + Vite + TailwindCSS
@@ -21,6 +23,7 @@ Backend: ASP.NET Core Web API
 Database: SQL Server (SSMS)
 
 Deployment: Docker & Docker Compose
+
 
 ⚙️ Quick Setup
 1️⃣ Database (SQL Server)
@@ -48,8 +51,7 @@ cd backend
 dotnet restore
 dotnet run
 
-
-Runs at: http://localhost:5143
+Runst: http://localhost:5143
 
 Update appsettings.json with your SQL Server connection string.
 
@@ -61,9 +63,9 @@ npm run dev
 
 Runs at: http://localhost:5173
 
-4️⃣ Docker (Optional)
-docker-compose up --build
 
+4️⃣ Docker 
+docker-compose up --build
 
 Backend → http://localhost:5143
 
@@ -71,10 +73,12 @@ Frontend → http://localhost:5173
 
 SQL Server → localhost:1433
 
+
+
 📌 Roadmap
 
 Add item price & compute total value
 
 Role-based access (Admin/User)
 
-Export to CSV/Excel"# MiniInvertorySystem" 
+Export to CSV/Excel
