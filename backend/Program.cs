@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
+
 var builder = WebApplication.CreateBuilder(args);
 // --------------------
 // Register Services
@@ -54,14 +55,17 @@ builder.Services.AddAuthorization();
 // Build the app
 // --------------------
 var app = builder.Build();
-
 // --------------------
 // Middleware
 // --------------------
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+   app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "MiniListInventorySystem API V1");
+    c.RoutePrefix = "swagger";
+});
 }
 
 app.UseHttpsRedirection();
