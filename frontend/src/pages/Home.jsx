@@ -50,7 +50,7 @@ function HomePage() {
     "Stationery & Labels",
   ];
 
-  const fixedUnits = ["Pcs", "Box", "Packs", "Liters", "Ream", "Pad", "Can"];
+  const fixedUnits = ["pcs", "box", "roll", "liter", "ream", "pad","bottle","pack", "can"];
 
   const [form, setForm] = useState({
     itemName: "",

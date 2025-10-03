@@ -1,0 +1,21 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    image: minilist_inventory
+    container_name: backend-minilist_inventory
+    ports:
+      - "5143:5143"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+
+ 
+  frontend:
+    build:
+      context: ./frontend
+    image: minilist_inventory
+    container_name: frontend-minilist_inventory
+    ports: 
+      - "5173:5173"
+    depends_on:
+      - backend
