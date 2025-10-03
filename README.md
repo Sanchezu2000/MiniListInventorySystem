@@ -1,3 +1,4 @@
+
 # 📦 MiniListInventorySystem
 
 A simple **Inventory Management System** built with **ASP.NET Core Web API**, **React (Vite)**, and **SQL Server**.
@@ -51,19 +52,35 @@ CREATE TABLE MiniItems (
 
 INSERT INTO MiniItems (ItemName, Category, Quantity, Unit, Status, DateAdded)
 VALUES ('Stapler', 'Office Supplies', 20, 'pcs', 'Available', GETDATE());
-2️⃣ Backend
-bash
-Copy code
+````
+
+---
+
+### 2️⃣ Backend
+
+```bash
 cd backend
 dotnet restore
 dotnet run
-3️⃣ Frontend
-bash
-Copy code
+```
+
+---
+
+### 3️⃣ Frontend
+
+```bash
 cd frontend
 npm install
 npm run dev
-4️⃣ Docker
-bash
-Copy code
+```
+
+---
+
+### 4️⃣ Docker
+
+```bash
 docker-compose up --build
+```
+
+---
+
