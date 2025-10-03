@@ -3,6 +3,13 @@
 A simple Inventory Management System built with ASP.NET Core Web API, React (Vite), and SQL Server.
 
 
+
+
+
+
+
+
+
 🚀 Features
 
 User registration & login (JWT authentication)
@@ -14,7 +21,11 @@ Categories: Office Supplies, Stationery & Labels, Consumables, Cleaning Supplies
 Item fields: ItemName, Category, Quantity, Unit, Status, DateAdded
 
 
-🛠️ Tech Stack
+
+
+
+
+**🛠️ Tech Stack**
 
 Frontend: React + Vite + TailwindCSS
 
@@ -25,7 +36,13 @@ Database: SQL Server (SSMS)
 Deployment: Docker & Docker Compose
 
 
-⚙️ Quick Setup
+
+
+
+
+
+**
+⚙️ Quick Setup**
 1️⃣ Database (SQL Server)
 CREATE DATABASE MiniItemsDB;
 GO
@@ -46,6 +63,9 @@ INSERT INTO MiniItems (ItemName, Category, Quantity, Unit, Status, DateAdded)
 VALUES 
 ('Stapler', 'Office Supplies', 20, 'pcs', 'Available', GETDATE());
 
+
+
+
 2️⃣ Backend
 cd backend
 dotnet restore
@@ -55,13 +75,22 @@ Runst: http://localhost:5143
 
 Update appsettings.json with your SQL Server connection string.
 
+
+
+
 3️⃣ Frontend
 cd frontend
 npm install
 npm run dev
 
 
+
+
+
 Runs at: http://localhost:5173
+
+
+
 
 
 4️⃣ Docker 
@@ -72,6 +101,10 @@ Backend → http://localhost:5143
 Frontend → http://localhost:5173
 
 SQL Server → localhost:1433
+
+
+
+
 
 
 
