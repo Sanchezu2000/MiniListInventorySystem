@@ -7,18 +7,18 @@ A simple **Inventory Management System** built with **ASP.NET Core Web API**, **
 ## 🚀 Features
 - 🔑 User registration & login (**JWT authentication**)  
 - 📋 Add, View, Edit, Delete, and **paginate items**  
-- 🗂 Categories:
-  - Office Supplies
-  - Stationery & Labels
-  - Consumables
+- 🗂 Categories:  
+  - Office Supplies  
+  - Stationery & Labels  
+  - Consumables  
   - Cleaning Supplies  
-- 📦 Item fields:
-  - `ItemName`
-  - `Category`
-  - `Quantity`
-  - `Unit`
-  - `Status`
-  - `DateAdded`
+- 📦 Item fields:  
+  - `ItemName`  
+  - `Category`  
+  - `Quantity`  
+  - `Unit`  
+  - `Status`  
+  - `DateAdded`  
 
 ---
 
@@ -51,17 +51,19 @@ CREATE TABLE MiniItems (
 
 INSERT INTO MiniItems (ItemName, Category, Quantity, Unit, Status, DateAdded)
 VALUES ('Stapler', 'Office Supplies', 20, 'pcs', 'Available', GETDATE());
-
-
 2️⃣ Backend
+bash
+Copy code
 cd backend
 dotnet restore
 dotnet run
-
 3️⃣ Frontend
+bash
+Copy code
 cd frontend
 npm install
 npm run dev
-
 4️⃣ Docker
+bash
+Copy code
 docker-compose up --build
