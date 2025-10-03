@@ -53,4 +53,15 @@ INSERT INTO MiniItems (ItemName, Category, Quantity, Unit, Status, DateAdded)
 VALUES ('Stapler', 'Office Supplies', 20, 'pcs', 'Available', GETDATE());
 
 
+2️⃣ Backend
+cd backend
+dotnet restore
+dotnet run
 
+3️⃣ Frontend
+cd frontend
+npm install
+npm run dev
+
+4️⃣ Docker
+docker-compose up --build
